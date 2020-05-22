@@ -17,11 +17,12 @@ fn main() {
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
-        pool.execute(|| handle_connection(stream));
+        let dir_copy = config.directory.clone();
+        pool.execute(move || handle_connection(stream, &dir_copy));
     }
 }
 
-fn handle_connection(mut stream: TcpStream) {
+fn handle_connection(mut stream: TcpStream, directory: &str) {
     let mut buffer = [0; 512];
     stream.read(&mut buffer).unwrap();
 
@@ -33,7 +34,7 @@ fn handle_connection(mut stream: TcpStream) {
         ("HTTP/1.1 404 NOT FOUND\r\n\r\n", "404.html")
     };
 
-    let contents = fs::read_to_string(format!("{}/{}", "public", filename)).unwrap();
+    let contents = fs::read_to_string(format!("{}/{}", directory, filename)).unwrap();
     let response = format!("{}{}", status_line, contents);
     stream.write(response.as_bytes()).unwrap();
     stream.flush().unwrap();
