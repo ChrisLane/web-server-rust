@@ -10,16 +10,14 @@ use yaml_rust::YamlLoader;
 use web_server::ThreadPool;
 
 fn main() {
-    read_config("config.yml");
-    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+    let config = read_config("config.yml");
+
+    let listener = TcpListener::bind(format!("127.0.0.1:{}", config.port)).unwrap();
     let pool = ThreadPool::new(4);
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
-
-        pool.execute(|| {
-            handle_connection(stream);
-        });
+        pool.execute(|| handle_connection(stream));
     }
 }
 
@@ -47,14 +45,10 @@ fn read_config(path: &str) -> Config {
     let yml = YamlLoader::load_from_str(file_str.as_str()).expect("Failed parsing config");
     let yml = &yml[0];
 
-    println!("Config: {:?}", yml);
-
     // Handle default port and range checking
     let port = yml["port"].as_i64();
-    println!("{:?}", yml["port"]);
     let port_is_valid = port.is_some() && port.unwrap() > 0 && port.unwrap() < u16::MAX as i64;
     let port = if port_is_valid {
-        println!("{}", port.unwrap());
         port.unwrap() as u16
     } else {
         eprintln!("Invalid port in config, defaulting to {}", Config::DEFAULT_PORT);

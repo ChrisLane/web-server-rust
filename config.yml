@@ -1,2 +1,2 @@
-- port: 8383
-- directory: "./public"
+port: 8383
+directory: "./public"
