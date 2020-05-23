@@ -42,7 +42,7 @@ fn handle_connection(mut stream: TcpStream, directory: &str) {
 
 fn read_config(path: &str) -> Config {
     // Load config file
-    let file_str = fs::read_to_string(path).unwrap_or("".to_string());
+    let file_str = fs::read_to_string(path).unwrap_or_else(|_| "".to_string());
     let yml = YamlLoader::load_from_str(file_str.as_str()).expect("Failed parsing config");
     let yml = &yml[0];
 
@@ -60,7 +60,7 @@ fn read_config(path: &str) -> Config {
         port,
         directory: yml["directory"]
             .as_str()
-            .unwrap_or(Config::DEFAULT_PATH.as_ref())
+            .unwrap_or_else(|| Config::DEFAULT_PATH)
             .parse()
             .unwrap(),
     }
