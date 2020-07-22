@@ -12,7 +12,8 @@ use web_server::ThreadPool;
 fn main() {
     let config = read_config("config.yml");
 
-    let listener = TcpListener::bind(format!("127.0.0.1:{}", config.port)).unwrap();
+    let listener = TcpListener::bind(format!("{}:{}", config.host, config.port))
+        .expect("Failed to bind TCP listener");
     let pool = ThreadPool::new(4);
 
     for stream in listener.incoming() {
@@ -61,6 +62,11 @@ fn read_config(path: &str) -> Config {
 
     Config {
         port,
+        host: yml["host"]
+            .as_str()
+            .unwrap_or_else(|| Config::DEFAULT_HOST)
+            .parse()
+            .unwrap(),
         directory: yml["directory"]
             .as_str()
             .unwrap_or_else(|| Config::DEFAULT_PATH)
@@ -72,10 +78,12 @@ fn read_config(path: &str) -> Config {
 #[derive(Debug)]
 struct Config {
     port: u16,
+    host: String,
     directory: String,
 }
 
 impl Config {
     pub const DEFAULT_PORT: u16 = 7878;
+    pub const DEFAULT_HOST: &'static str = "[::1]";
     pub const DEFAULT_PATH: &'static str = "public";
 }

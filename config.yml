@@ -1,2 +1,3 @@
 port: 8383
+host: "[::1]"
 directory: "./public"
