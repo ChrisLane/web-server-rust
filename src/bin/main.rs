@@ -36,7 +36,7 @@ fn handle_connection(mut stream: TcpStream, directory: &str) {
 
     let contents = fs::read_to_string(format!("{}/{}", directory, filename)).unwrap();
     let response = format!("{}{}", status_line, contents);
-    stream.write(response.as_bytes()).unwrap();
+    stream.write_all(response.as_bytes()).unwrap();
     stream.flush().unwrap();
 }
 
