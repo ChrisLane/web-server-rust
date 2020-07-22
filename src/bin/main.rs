@@ -52,7 +52,10 @@ fn read_config(path: &str) -> Config {
     let port = if port_is_valid {
         port.unwrap() as u16
     } else {
-        eprintln!("Invalid port in config, defaulting to {}", Config::DEFAULT_PORT);
+        eprintln!(
+            "Invalid port in config, defaulting to {}",
+            Config::DEFAULT_PORT
+        );
         Config::DEFAULT_PORT
     };
 
